@@ -1277,6 +1277,22 @@ set_xor_i(st_data_t key, st_data_t data)
     return ST_CONTINUE;
 }
 
+struct set_xor_block_data {
+    set_table *seen;
+    VALUE set;
+};
+
+static VALUE
+set_xor_block(RB_BLOCK_CALL_FUNC_ARGLIST(key, data))
+{
+    struct set_xor_block_data *d = (struct set_xor_block_data *)data;
+    VALUE element = key;
+    if (set_table_insert_wb(d->seen, d->set, element, &element) == 0) {
+        set_xor_i((st_data_t)element, (st_data_t)d->set);
+    }
+    return key;
+}
+
 /*
  *  call-seq:
  *    set ^ enum -> new_set
@@ -1297,9 +1313,15 @@ set_i_xor(VALUE set, VALUE other)
         set_iter(other, set_xor_i, (st_data_t)new_set);
     }
     else {
-        VALUE tmp = set_s_alloc(rb_cSet);
-        set_merge_enum_into(tmp, other);
-        set_iter(tmp, set_xor_i, (st_data_t)new_set);
+        /* Deduplicate RHS using the receiver's hash type to respect identity */
+        set_table *seen = set_init_table_with_size(NULL, RSET_TABLE(new_set)->type, 0);
+        struct set_xor_block_data {
+            set_table *seen;
+            VALUE set;
+        } data = { seen, new_set };
+
+        rb_block_call(other, enum_method_id(other), 0, 0, set_xor_block, (VALUE)&data);
+        set_free_table(seen);
     }
 
     return new_set;
