@@ -1297,7 +1297,10 @@ set_i_xor(VALUE set, VALUE other)
         set_iter(other, set_xor_i, (st_data_t)new_set);
     }
     else {
-        VALUE tmp = set_s_alloc(rb_cSet);
+        VALUE tmp = set_alloc_with_size(rb_obj_class(new_set), 0);
+        if (RSET_COMPARE_BY_IDENTITY(new_set)) {
+            set_i_compare_by_identity(tmp);
+        }
         set_merge_enum_into(tmp, other);
         set_iter(tmp, set_xor_i, (st_data_t)new_set);
     }
