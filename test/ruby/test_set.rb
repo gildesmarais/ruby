@@ -923,6 +923,15 @@ class TC_Set < Test::Unit::TestCase
     assert_raise(RuntimeError) { set.each { set.reset } }
   end
 
+  def test_insertion_order_preserved
+    set = Set[3, 1, 2]
+    assert_equal([3, 1, 2], set.to_a)
+
+    iset = Set.new.compare_by_identity
+    iset.merge([3, 1, 2])
+    assert_equal([3, 1, 2], iset.to_a)
+  end
+
   def test_set_gc_compact_does_not_allocate
     assert_in_out_err([], <<-"end;", [], [])
     def x
