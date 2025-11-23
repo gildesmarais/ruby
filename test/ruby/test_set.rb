@@ -700,6 +700,20 @@ class TC_Set < Test::Unit::TestCase
       ret2 = set2 ^ [2,4,5,5]
       assert_instance_of(klass, ret2)
       assert_equal(klass[1,3,5], ret2)
+
+      # Set ^ Set should not mutate either operand and should be symmetric
+      a = klass[1,2,3,4]
+      b = klass[2,4,5]
+      a_copy = a.dup
+      b_copy = b.dup
+      ret3 = a ^ b
+      ret4 = b ^ a
+      assert_equal(klass[1,3,5], ret3)
+      assert_equal(ret3, ret4)
+      assert_equal(a_copy, a)
+      assert_equal(b_copy, b)
+      assert_instance_of(klass, ret3)
+      assert_instance_of(klass, ret4)
     }
   end
 
