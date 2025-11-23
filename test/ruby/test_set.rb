@@ -923,6 +923,27 @@ class TC_Set < Test::Unit::TestCase
     assert_raise(RuntimeError) { set.each { set.reset } }
   end
 
+  def test_string_freezing_semantics
+    s = "foo"
+    set = Set.new
+    set << s
+    stored = set.to_a.first
+    assert_not_same(s, stored)
+    assert_predicate(stored, :frozen?)
+
+    s2 = "bar"
+    iset = Set.new.compare_by_identity
+    iset << s2
+    stored2 = iset.to_a.first
+    assert_same(s2, stored2)
+    assert_not_predicate(stored2, :frozen?)
+
+    sf = "baz".freeze
+    set2 = Set.new
+    set2 << sf
+    assert_same(sf, set2.to_a.first)
+  end
+
   def test_compare_by_identity_hash_and_eq
     a1, a2 = "a", "a"
     set_default1 = Set[a1]
