@@ -714,6 +714,18 @@ class TC_Set < Test::Unit::TestCase
       assert_equal(b_copy, b)
       assert_instance_of(klass, ret3)
       assert_instance_of(klass, ret4)
+
+      # compare_by_identity should keep distinct objects from enumerable RHS
+      iset = Set.new.compare_by_identity
+      x1 = +"x"
+      x2 = +"x"
+      ret5 = iset ^ [x1, x2]
+      assert_equal(2, ret5.size)
+      arr = ret5.to_a
+      assert_include(arr, x1)
+      assert_include(arr, x2)
+      assert_not_predicate(x1, :frozen?)
+      assert_not_predicate(x2, :frozen?)
     }
   end
 
