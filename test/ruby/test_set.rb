@@ -923,6 +923,19 @@ class TC_Set < Test::Unit::TestCase
     assert_raise(RuntimeError) { set.each { set.reset } }
   end
 
+  def test_compare_by_identity_hash_and_eq
+    a1, a2 = "a", "a"
+    set_default1 = Set[a1]
+    set_default2 = Set[a2]
+    assert_equal(set_default1, set_default2)
+    assert_equal(set_default1.hash, set_default2.hash)
+
+    iset = Set.new.compare_by_identity
+    iset.merge([a1, a2])
+    assert_not_equal(set_default1, iset)
+    refute_equal(set_default1.hash, iset.hash)
+  end
+
   def test_insertion_order_preserved
     set = Set[3, 1, 2]
     assert_equal([3, 1, 2], set.to_a)
