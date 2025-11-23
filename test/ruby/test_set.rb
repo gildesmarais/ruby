@@ -915,6 +915,14 @@ class TC_Set < Test::Unit::TestCase
     }
   end
 
+  def test_iteration_mutation_guards
+    set = Set[1, 2]
+    assert_raise(RuntimeError) { set.each { set.add(3) } }
+    assert_raise(RuntimeError) { set.each { set.merge([3]) } }
+    assert_raise(RuntimeError) { set.each { set.compare_by_identity } }
+    assert_raise(RuntimeError) { set.each { set.reset } }
+  end
+
   def test_set_gc_compact_does_not_allocate
     assert_in_out_err([], <<-"end;", [], [])
     def x
