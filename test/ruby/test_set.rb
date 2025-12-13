@@ -703,6 +703,21 @@ class TC_Set < Test::Unit::TestCase
     }
   end
 
+  def test_xor_on_identity_set_retains_two_distinct_objects
+    iset = Set.new.compare_by_identity
+    x1 = +"x"
+    x2 = +"x"
+    ret = iset ^ [x1, x2]
+
+    assert_equal(2, ret.size)
+    assert_predicate(ret, :compare_by_identity?)
+
+    assert_include(ret, x1)
+    assert_include(ret, x2)
+    assert_not_predicate(x1, :frozen?)
+    assert_not_predicate(x2, :frozen?)
+  end
+
   def test_xor_does_not_mutate_other_set
     a = Set[1]
     b = Set[1, 2]
